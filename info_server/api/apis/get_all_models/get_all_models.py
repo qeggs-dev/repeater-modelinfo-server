@@ -9,7 +9,7 @@ class ModelInfoResponse(BaseModel):
     models: list[ModelAPI] = Field(default_factory=list)
 
 @Resource.app.get("/model_info/{model_type}")
-def get_all_info(model_type: ModelType):
+def get_all_models(model_type: ModelType):
     """
     Get all model info
     """

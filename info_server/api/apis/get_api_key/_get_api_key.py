@@ -6,7 +6,7 @@ from ....model_api import ModelAPI
 
 class ModelInfoResponse(BaseModel):
     message: str = ""
-    api_keys: dict[str, str] = Field(default_factory=dict)
+    api_keys: list[str] = Field(default_factory=list)
 
 @Resource.app.get("/model_api_key/{model_type}/{model_uid}")
 def get_api_key(model_type: ModelType, model_uid: str):
@@ -25,7 +25,9 @@ def get_api_key(model_type: ModelType, model_uid: str):
         message = f"Get Model {model_type}/{model_uid} api key successfully.",
     )
     for model in model_info:
-        response.api_keys[model.uid] = model.get_api_key()
+        response.api_keys.append(
+            model.get_api_key()
+        )
     return JSONResponse(
         content = response.model_dump(),
         status_code=200,
