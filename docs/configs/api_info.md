@@ -6,7 +6,7 @@
 [
   {
     "name": "OpenAI API Group",
-    "api_key_env": "OPENAI_API_KEY", // 模型API密钥环境变量的名称
+    "api_key_env": "OPENAI_API_KEY", // 模型API密钥环境变量的名称，你也可以在这里填写列表以支持多个密钥随机访问
     "url": "https://api.openai.com/v1",
     "timeout": 30, // 共用超时时间
     "models": [
