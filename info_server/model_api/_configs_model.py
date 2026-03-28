@@ -12,7 +12,7 @@ class Model(BaseModel):
 
 class ModelAPIConfig(BaseModel):
     name: str = ""
-    api_key_env: str = "API_KEY"
+    api_key_env: str | list[str] = "API_KEY"
     url: str = ""
     models: list[Model] = Field(default_factory=list)
     timeout: float = 600.0
