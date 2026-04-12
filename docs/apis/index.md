@@ -5,5 +5,5 @@
 - [Get Model](./get_model.md)
 - [Get All Models](./get_all_models.md)
 - [Get API Key](./get_api_key.md)
-- [Test Connection](./test_connection.md)
+- [Alived](./alived.md)
 - [*\*Exception Response*](./exception_response.md)

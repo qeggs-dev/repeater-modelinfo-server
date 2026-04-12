@@ -1,6 +1,6 @@
 from .._resource import Resource
 from fastapi.responses import PlainTextResponse
 
-@Resource.app.get("/connected")
-def test_connection():
+@Resource.app.get("/alived")
+def alived():
     return PlainTextResponse("OK")
