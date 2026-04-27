@@ -53,6 +53,7 @@ class ModelAPIManager:
                     api_key_env = group.api_key_env,
                     parent = group.name,
                     url = model.url or group.url,
+                    proxy = model.proxy or group.proxy,
                     type = model.type,
                     timeout = model_timeout,
                 )

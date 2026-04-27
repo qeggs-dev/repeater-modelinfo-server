@@ -9,6 +9,7 @@ _env = Env()
 class StaticModelAPI(BaseModel):
     name: str = ""
     url: str = ""
+    proxy: str | None = None
     id: str = ""
     api_key: str | None = None
     parent: str = ""
@@ -23,6 +24,7 @@ class ModelAPI(BaseModel):
 
     name: str = ""
     url: str = ""
+    proxy: str | None = None
     id: str = ""
     api_key_env: str | str = Field("API_KEY", exclude = True)
     parent: str = ""

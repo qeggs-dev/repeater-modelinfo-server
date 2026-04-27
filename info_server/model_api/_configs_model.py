@@ -7,6 +7,7 @@ class Model(BaseModel):
     id: str = ""
     url: str = ""
     uid: str = ""
+    proxy: str | None = None
     type: ModelType = ModelType.CHAT
     timeout: float | None = None
 
@@ -14,6 +15,7 @@ class ModelAPIConfig(BaseModel):
     name: str = ""
     api_key_env: str | list[str] = "API_KEY"
     url: str = ""
+    proxy: str | None = None
     models: list[Model] = Field(default_factory=list)
     timeout: float = 600.0
     
