@@ -9,6 +9,7 @@
     "api_key_env": "OPENAI_API_KEY", // 模型API密钥环境变量的名称，你也可以在这里填写列表以支持多个密钥随机访问
     "url": "https://api.openai.com/v1",
     "timeout": 30, // 共用超时时间
+    "proxy": null, // 共用代理
     "models": [
       {
         "name": "GPT 4", // 可读的模型名称
@@ -24,6 +25,13 @@
         "type": "chat",
         "timeout": 30 // 可以为模型独立设置超时
       }
+      {
+        "name": "GPT 2",
+        "uid": "gpt-2", 
+        "id": "gpt-2",
+        "type": "chat",
+        "proxy": null // 可以为模型独立设置代理
+      },
     ]
   }
 ]
