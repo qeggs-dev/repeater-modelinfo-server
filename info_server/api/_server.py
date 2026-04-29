@@ -1,24 +1,33 @@
 import os
 import yaml
 import orjson
+import uvicorn
 
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from typing import ClassVar
-from ..model_api import ModelAPIManager
+from ..model_api import ProviderGroup
 from ..global_config_manager import ConfigManager, Global_Config
 from .._info import __version__
 from ..logger_init import logger_init
+from ._lifespan import Lifespan
 from environs import Env
 
-class Resource:
+class Server:
     app: ClassVar[FastAPI] = FastAPI(
         title="Repeater Model API Info Server",
         description="Used to provide model information to the Repeater.",
         version = __version__,
+        lifespan = Lifespan
     )
     envs: ClassVar[Env] = Env()
-    core: ClassVar[ModelAPIManager | None] = None
+    core: ClassVar[ProviderGroup | None] = None
+    server: ClassVar[uvicorn.Server | None] = None
+    
+    @classmethod
+    def include_router(cls, router: APIRouter):
+        cls.app.include_router(router)
+        return router
 
     @classmethod
     def read_dotenv(cls, path: str | os.PathLike | None = None):
@@ -52,14 +61,36 @@ class Resource:
     
     @classmethod
     def init_core(cls):
-        cls.core = ModelAPIManager(
-            case_sensitive = ConfigManager.get_configs().model_api.case_sensitive
+        cls.core = ProviderGroup.from_file(ConfigManager.get_configs().model_api.api_file_path)
+    
+    @classmethod
+    def init_server(cls):
+        config = ConfigManager.get_configs()
+        server = uvicorn.Server(
+            config = uvicorn.Config(
+                app = cls.app,
+                host = config.server.host,
+                port = config.server.port,
+                workers = config.server.workers,
+                reload = config.server.reload,
+                log_config = None
+            )
         )
-        cls.core.load(ConfigManager.get_configs().model_api.api_file_path)
+
+        cls.server = server
+    
+    @classmethod
+    def run_server(cls):
+        cls.server.run()
+
+    @classmethod
+    def shutdown_server(cls):
+        cls.server.shutdown()
     
     @staticmethod
     def init_logger():
         logger_init(ConfigManager.get_configs().logger)
+    
     
     @classmethod
     def init_all(cls):
@@ -67,3 +98,4 @@ class Resource:
         cls.init_config()
         cls.init_logger()
         cls.init_core()
+        cls.init_server()

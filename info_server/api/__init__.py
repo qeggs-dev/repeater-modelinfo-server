@@ -1,2 +1,2 @@
-from ._resource import Resource
+from ._server import Server
 from .apis import *
