@@ -12,6 +12,7 @@
       "api_key_env": "OPENAI_API_KEY", // 模型API密钥环境变量的名称，你也可以在这里填写列表以支持多个密钥随机访问
       "url": "https://api.openai.com/v1",
       "timeout": 30, // 请求超时时间
+      "models": [], // 模型手动填充列表，已弃用
       "proxy": null, // HTTP 代理
     }
   ],
