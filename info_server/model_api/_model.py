@@ -6,8 +6,9 @@ class Model(BaseModel):
     url: str = ""
     proxy: str | None = None
     id: str = ""
+    uid: str = ""
     api_key: str | None = None
     parent: str = ""
-    uid: str = ""
-    model: ModelAPIData = Field(default_factory=ModelAPIData)
+    parent_id: str = ""
+    detailed: ModelAPIData = Field(default_factory=ModelAPIData)
     timeout: float = 600.0

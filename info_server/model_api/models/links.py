@@ -1,4 +1,4 @@
 from pydantic import BaseModel
 
 class Links(BaseModel):
-    details: str = ""
+    details: str | None = None

@@ -6,21 +6,21 @@ from .supported_parameters import SupportedParameters
 from .links import Links
 
 class ModelAPIData(BaseModel):
-    id: str = ""
-    canonical_slug: str = ""
-    hugging_face_id: str = ""
-    name: str = ""
-    created: int = 0
-    description: str = ""
-    context_length: int = 0
-    architecture: Architecture = Field(default_factory=Architecture)
-    pricing: Pricing = Field(default_factory=Pricing)
-    top_provider: TopProvider = Field(default_factory=TopProvider)
+    id: str | None = None
+    canonical_slug: str | None = None
+    hugging_face_id: str | None = None
+    name: str | None = None
+    created: int | None = None
+    description: str | None = None
+    context_length: int | None = None
+    architecture: Architecture | None = None
+    pricing: Pricing | None = None
+    top_provider: TopProvider | None = None
     per_request_limits: None = None
-    supported_parameters: list[SupportedParameters] = Field(default_factory=list)
+    supported_parameters: list[SupportedParameters] | None = None
     knowledge_cutoff: str | None = None
     expiration_date: str | None = None
-    links: Links = Field(default_factory=Links)
+    links: Links | None = None
 
 class ModelAPIResponse(BaseModel):
     data: list[ModelAPIData] = Field(default_factory=list)
