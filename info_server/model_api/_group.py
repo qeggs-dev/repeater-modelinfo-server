@@ -25,31 +25,35 @@ class ProviderGroup:
         ExitHandler.add_function(self.close_all())
     
     def find_models(self, model_id: str) -> list[Model]:
-        match_result = self._pattern.match(model_id)
-        if match_result:
-            group_name = match_result.group("group")
-            model_name = match_result.group("model")
-
-            assert isinstance(group_name, str), "Group name should be a string"
-            assert isinstance(model_name, str), "Model name should be a string"
-
-            group = self._providers.get(group_name)
-            if group is None:
-                logger.warning(f"Group {group_name} not found")
-                return []
-            
-            model = group.find_model(model_name)
-            if model is None:
-                logger.warning(f"Model {model_name} not found in group {group_name}")
-                return []
-            return [model]
+        if model_id in self._providers:
+            provider = self._providers[model_id]
+            return provider.get_all_models()
         else:
-            models: list[Model] = []
-            for group in self._providers.values():
-                model = group.find_model(model_id)
-                if model is not None:
-                    models.append(model)
-            return models
+            match_result = self._pattern.match(model_id)
+            if match_result:
+                group_name = match_result.group("group")
+                model_name = match_result.group("model")
+
+                assert isinstance(group_name, str), "Group name should be a string"
+                assert isinstance(model_name, str), "Model name should be a string"
+
+                group = self._providers.get(group_name)
+                if group is None:
+                    logger.warning(f"Group {group_name} not found")
+                    return []
+                
+                model = group.find_model(model_name)
+                if model is None:
+                    logger.warning(f"Model {model_name} not found in group {group_name}")
+                    return []
+                return [model]
+            else:
+                models: list[Model] = []
+                for group in self._providers.values():
+                    model = group.find_model(model_id)
+                    if model is not None:
+                        models.append(model)
+                return models
     
     def regex_match_models(self, regex: re.Pattern[str]) -> list[Model]:
         models: list[Model] = []
