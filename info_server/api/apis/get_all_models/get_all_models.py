@@ -1,26 +1,25 @@
-from ..._resource import Resource
+from ..._server import Server
 from ....model_api import ModelType
 from pydantic import BaseModel, Field
 from fastapi.responses import JSONResponse
 from fastapi import Query
-from ....model_api import ModelAPI, StaticModelAPI
+from ....model_api import Model
+from .._route import router
 
 class ModelInfoResponse(BaseModel):
     message: str = ""
-    models: list[ModelAPI | StaticModelAPI] = Field(default_factory=list)
+    models: list[Model] = Field(default_factory=list)
 
-@Resource.app.get("/model_info/{model_type}")
-def get_all_models(model_type: ModelType, with_api_key: bool = Query(False)):
+@router.get("/models")
+def get_all_models():
     """
     Get all model info
     """
-    model_info = Resource.core.model_list(model_type)
-    if with_api_key:
-        model_info = [model.to_static() for model in model_info]
+    models = Server.core.get_all_models()
     return JSONResponse(
         content = ModelInfoResponse(
-            message = f"Get {model_type} model info successfully.",
-            models = model_info,
-        ).model_dump(),
+            message = f"Get model info successfully.",
+            models = models,
+        ).model_dump(exclude_none=True),
         status_code=200,
     )

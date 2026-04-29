@@ -1,6 +1,6 @@
-from .._resource import Resource
+from .._server import Server
 from fastapi.responses import PlainTextResponse
 
-@Resource.app.get("/alived")
+@Server.app.get("/alived")
 def alived():
     return PlainTextResponse("OK")
