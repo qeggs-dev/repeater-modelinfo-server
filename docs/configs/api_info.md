@@ -1,38 +1,20 @@
 # API Info
 
-用于记录模型信息
+该文件作为索引，用于指导模型信息获取与存储。
 
 ```json
-[
-  {
-    "name": "OpenAI API Group",
-    "api_key_env": "OPENAI_API_KEY", // 模型API密钥环境变量的名称，你也可以在这里填写列表以支持多个密钥随机访问
-    "url": "https://api.openai.com/v1",
-    "timeout": 30, // 共用超时时间
-    "proxy": null, // 共用代理
-    "models": [
-      {
-        "name": "GPT 4", // 可读的模型名称
-        "uid": "gpt-4",  // 面向查询的模型唯一标识符，如果重复，则查询时全部输出
-        "id": "gpt-4", // 面向厂商的模型 ID
-        "type": "chat", // 模型类型
-        "url": "" // 可以为模型独立设置 URL
-      },
-      {
-        "name": "GPT 3.5 Turbo",
-        "uid": "gpt-3.5-turbo",
-        "id": "gpt-3.5-turbo",
-        "type": "chat",
-        "timeout": 30 // 可以为模型独立设置超时
-      }
-      {
-        "name": "GPT 2",
-        "uid": "gpt-2", 
-        "id": "gpt-2",
-        "type": "chat",
-        "proxy": null // 可以为模型独立设置代理
-      },
-    ]
-  }
-]
+{
+  "type": "model_group_config.v1", // 一个固定的字符串，用于标识配置文件类型
+  "providers": [
+    {
+      "name": "OpenAI API Group", // 模型组名称
+      "id": "openai", // 模型组 ID，用于查询与唯一标识
+      "api_key_env": "OPENAI_API_KEY", // 模型API密钥环境变量的名称，你也可以在这里填写列表以支持多个密钥随机访问
+      "url": "https://api.openai.com/v1",
+      "timeout": 30, // 请求超时时间
+      "proxy": null, // HTTP 代理
+    }
+  ],
+  "library_file": "providers_library.json", // 模型库文件，如果不写则每次都直接从供应商获取模型信息
+}
 ```

@@ -14,8 +14,7 @@
         "compression": "zip" // 日志压缩格式
     },
     "model_api": {
-        "api_file_path": "./configs/api_info.json", // 模型API信息文件路径
-        "case_sensitive": false, // 模型 UID 是否区分大小写
+        "api_file_path": "./configs/api_info.json", // 模型信息引导文件路径
         "default_timeout": 600.0 // 在模型没有定义超时时间时使用的超时时间
     },
     "server": {
