@@ -1,14 +1,14 @@
 import sys
 import uvicorn
 
-from .api import Resource
+from .api import Server
 from .global_config_manager import ConfigManager
 from ._info import __version__
 from loguru import logger
 
 class Core:
     def __init__(self):
-        self.resource = Resource()
+        self.resource = Server()
     
     def init_resource(self):
         self.resource.init_all()
@@ -24,18 +24,10 @@ class Core:
         )
     
     def run(self):
-        config = ConfigManager.get_configs()
-        if config.server.run_server:
-            uvicorn.run(
-                app = self.resource.app,
-                host = config.server.host,
-                port = config.server.port,
-                workers = config.server.workers,
-                reload = config.server.reload,
-                log_config = None
-            )
+        Server.run_server()
     
     def one_key_run(self):
         self.init_resource()
         self.record_version()
-        self.run()
+        if ConfigManager.get_configs().server.run_server:
+            self.run()
