@@ -1,5 +1,5 @@
 import sys
-import uvicorn
+import asyncio
 
 from .api import Server
 from .global_config_manager import ConfigManager
@@ -24,7 +24,12 @@ class Core:
         )
     
     def run(self):
-        Server.run_server()
+        try:
+            asyncio.run(
+                Server.run_server()
+            )
+        except KeyboardInterrupt:
+            logger.info("Server stopped by user")
     
     def one_key_run(self):
         self.init_resource()

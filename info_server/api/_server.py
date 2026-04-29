@@ -80,17 +80,19 @@ class Server:
         cls.server = server
     
     @classmethod
-    def run_server(cls):
-        cls.server.run()
+    async def run_server(cls):
+        try:
+            await cls.server.serve()
+        except KeyboardInterrupt:
+            await cls.shutdown_server()
 
     @classmethod
-    def shutdown_server(cls):
-        cls.server.shutdown()
+    async def shutdown_server(cls):
+        await cls.server.shutdown()
     
     @staticmethod
     def init_logger():
         logger_init(ConfigManager.get_configs().logger)
-    
     
     @classmethod
     def init_all(cls):
