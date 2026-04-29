@@ -81,7 +81,7 @@ class ModelProvider:
         response.raise_for_status()
         return ModelAPIResponse(**response.json())
     
-    async def gets_and_populates(self):
+    async def get_and_populates(self):
         response = await self.get_models()
         models = response.data
         self._models = {model.id: model for model in models}
@@ -96,7 +96,6 @@ class ModelProvider:
             parent = self.name,
             timeout = self.timeout
         )
-
     
     def find_model(self, model_id: str) -> Model | None:
         if model_id in self._models:
