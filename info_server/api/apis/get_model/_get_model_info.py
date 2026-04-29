@@ -2,14 +2,13 @@ from ..._server import Server
 from pydantic import BaseModel, Field
 from fastapi.responses import JSONResponse
 from ....model_api import Model
-from .._route import router
 
 class ModelInfoResponse(BaseModel):
     message: str = ""
     models: list[Model] = Field(default_factory=list)
 
-@router.get("/model_info/{model_uid:path}")
-def get_model_info(model_uid: str):
+@Server.app.get("/models/{model_uid:path}")
+async def get_model_info(model_uid: str):
     """
     Get model info
     """
