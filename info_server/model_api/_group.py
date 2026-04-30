@@ -67,6 +67,7 @@ class ProviderGroup:
         models: list[Model] = []
         for provider in self._providers.values():
             models.extend(provider.match_models(regex, lambda x: f"{provider.id}/{x}"))
+        return models
 
     def schema_match_models(self, schema: Any) -> list[Model]:
         models = self.get_all_models()
