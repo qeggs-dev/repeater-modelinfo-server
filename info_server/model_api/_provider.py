@@ -43,6 +43,10 @@ class ModelProvider:
         return self._id
     
     @property
+    def uid(self):
+        return f"{self._id}/{self._name}"
+    
+    @property
     def name(self):
         return self._name
 
@@ -113,7 +117,7 @@ class ModelProvider:
             url = self.base_url,
             proxy = self.proxy,
             id = api_data.id,
-            uid = f"{self.id}/{api_data.id}",
+            uid = self.uid,
             api_key = self.random_api_key,
             parent_id = self.id,
             detailed = api_data,
