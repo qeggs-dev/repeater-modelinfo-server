@@ -17,7 +17,8 @@ from ..lifespan import (
 )
 
 class ProviderGroup:
-    _pattern: re.Pattern[str] = re.compile(r"^(?P<group>.*?)/(?P<model>.*)$", re.IGNORECASE | re.DOTALL)
+    _model_uid_pattern: re.Pattern[str] = re.compile(r"^(?P<group>.*?)/(?P<model>.*)$", re.IGNORECASE | re.DOTALL)
+    _rematch_pattern: re.Pattern[str] = re.compile(r"^match:(?P<regex>.+)$", re.IGNORECASE | re.DOTALL)
     def __init__(self, groups: GroupConfig):
         self._providers: dict[str, ModelProvider] = {provider.id: ModelProvider.from_config(provider) for provider in groups.providers}
         self._groups: GroupConfig = groups
@@ -29,7 +30,7 @@ class ProviderGroup:
             provider = self._providers[model_id]
             return provider.get_all_models()
         else:
-            match_result = self._pattern.match(model_id)
+            match_result = self._model_uid_pattern.match(model_id)
             if match_result:
                 group_name = match_result.group("group")
                 model_name = match_result.group("model")
@@ -48,12 +49,19 @@ class ProviderGroup:
                     return []
                 return [model]
             else:
-                models: list[Model] = []
-                for group in self._providers.values():
-                    model = group.find_model(model_id)
-                    if model is not None:
-                        models.append(model)
-                return models
+                match_result = self._rematch_pattern.match(model_id)
+                if match_result:
+                    regex = match_result.group("regex")
+                    pattern = re.compile(regex)
+                    models: list[Model] = self.regex_match_models(pattern)
+                    return models
+                else:
+                    models: list[Model] = []
+                    for group in self._providers.values():
+                        model = group.find_model(model_id)
+                        if model is not None:
+                            models.append(model)
+                    return models
     
     def regex_match_models(self, regex: re.Pattern[str]) -> list[Model]:
         models: list[Model] = []
