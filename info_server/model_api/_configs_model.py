@@ -3,11 +3,15 @@ from typing import Literal
 from .models import ModelAPIData
 
 class ProviderConfig(BaseModel):
+    url: str = ""
+    max_connections: int | None = None
+    max_keepalive_connections: int | None = None
+    keepalive_expiry: int | float | None = 5
+    proxy: str | None = None
+
     name: str = ""
     id: str = ""
     api_key_env: str | list[str] = "API_KEY"
-    url: str = ""
-    proxy: str | None = None
     models: list[ModelAPIData] | None = None
     timeout: float = 600.0
     
