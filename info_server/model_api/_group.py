@@ -64,11 +64,7 @@ class ProviderGroup:
                                 lambda model_id: pattern.search(model_id) is not None
                             )
                         case _:
-                            logger.warning(
-                                "Invalid match mode {mode}.",
-                                mode = mode
-                            )
-                            return []
+                            assert False, f"Unknown mode {mode}"
                     return models
                 else:
                     models: list[Model] = []
