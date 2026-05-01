@@ -132,11 +132,11 @@ class ModelProvider:
         else:
             return None
     
-    def match_models(self, regex: re.Pattern[str], get_key: Callable[[str], str] = lambda x: x) -> list[Model]:
+    def match_models(self, matcher: Callable[[str], bool], get_key: Callable[[str], str] = lambda x: x) -> list[Model]:
         return [
             self._api_data_to_model(model_info)
             for model_info in self._models.values()
-            if regex.match(get_key(model_info.id))
+            if matcher(get_key(model_info.id))
         ]
     
     def get_all_models(self) -> list[Model]:

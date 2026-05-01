@@ -7,7 +7,7 @@ import jsonschema
 
 from loguru import logger
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any, Generator, Callable
 from ._configs_model import GroupConfig, ProviderConfig
 from ._model import Model
 from ._provider import ModelProvider
@@ -18,7 +18,7 @@ from ..lifespan import (
 
 class ProviderGroup:
     _model_uid_pattern: re.Pattern[str] = re.compile(r"^(?P<group>.*?)/(?P<model>.*)$", re.IGNORECASE | re.DOTALL)
-    _rematch_pattern: re.Pattern[str] = re.compile(r"^match:(?P<regex>.+)$", re.IGNORECASE | re.DOTALL)
+    _rematch_pattern: re.Pattern[str] = re.compile(r"^(?P<mode>match|search):(?P<regex>.+)$", re.IGNORECASE | re.DOTALL)
     def __init__(self, groups: GroupConfig):
         self._providers: dict[str, ModelProvider] = {provider.id: ModelProvider.from_config(provider) for provider in groups.providers}
         self._groups: GroupConfig = groups
@@ -51,9 +51,24 @@ class ProviderGroup:
             else:
                 match_result = self._rematch_pattern.match(model_id)
                 if match_result:
+                    mode = match_result.group("mode")
                     regex = match_result.group("regex")
                     pattern = re.compile(regex)
-                    models: list[Model] = self.regex_match_models(pattern)
+                    match mode:
+                        case "match":
+                            models: list[Model] = self.regex_match_models(
+                                lambda model_id: pattern.match(model_id) is not None
+                            )
+                        case "search":
+                            models: list[Model] = self.regex_match_models(
+                                lambda model_id: pattern.search(model_id) is not None
+                            )
+                        case _:
+                            logger.warning(
+                                "Invalid match mode {mode}.",
+                                mode = mode
+                            )
+                            return []
                     return models
                 else:
                     models: list[Model] = []
@@ -63,10 +78,15 @@ class ProviderGroup:
                             models.append(model)
                     return models
     
-    def regex_match_models(self, regex: re.Pattern[str]) -> list[Model]:
+    def regex_match_models(self, matcher: Callable[[str], bool]) -> list[Model]:
         models: list[Model] = []
         for provider in self._providers.values():
-            models.extend(provider.match_models(regex, lambda x: f"{provider.id}/{x}"))
+            models.extend(
+                provider.match_models(
+                    matcher,
+                    get_key = lambda model_id: f"{provider.id}/{model_id}"
+                )
+            )
         return models
 
     def schema_match_models(self, schema: Any) -> list[Model]:
