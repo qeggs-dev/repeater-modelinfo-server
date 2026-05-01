@@ -5,7 +5,11 @@ import random
 from environs import Env
 from typing import Callable
 from .models import ModelAPIData, ModelAPIResponse
-from ._configs_model import ProviderConfig
+from ._configs_model import (
+    ProviderConfig,
+    HTTPLimit,
+    HTTPTimeouts
+)
 from ._model import Model
 from loguru import logger
 
@@ -21,22 +25,18 @@ class ModelProvider:
         api_key_env: str | list[str],
         proxy: str | None = None,
         models: list[ModelAPIData] | None = None,
-        timeout: float = 600.0,
+        limit: HTTPLimit | None = None,
+        timeout: int | float | HTTPTimeouts | None = 600.0,
         client: httpx.AsyncClient | None = None,
-        max_connections: int | None = None,
-        max_keepalive_connections: int | None = None,
-        keepalive_expiry: int | float | None = 5
     ):
         self._id = id
         self._name = name
         self._base_url = base_url
         self._proxy = proxy
+        self._limit = limit
         self._timeout = timeout
         self._api_key_env = api_key_env
         self._models: dict[str, ModelAPIData] = {}
-        self._max_connections = max_connections
-        self._max_keepalive_connections = max_keepalive_connections
-        self._keepalive_expiry = keepalive_expiry
 
         if models is not None:
             self._models = {model.id: model for model in models}
@@ -44,27 +44,31 @@ class ModelProvider:
             base_url = base_url,
             proxy = proxy,
             timeout = timeout,
+            limits = limit or httpx.Limits(
+                max_connections = 100,
+                max_keepalive_connections = 20,
+            ),
             verify = self._ssl_context
         )
     
     @property
-    def id(self):
+    def id(self) -> str:
         return self._id
     
     @property
-    def uid(self):
+    def uid(self) -> str:
         return f"{self._id}/{self._name}"
     
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def base_url(self):
+    def base_url(self) -> str:
         return self._base_url
 
     @property
-    def proxy(self):
+    def proxy(self) -> str | None:
         return self._proxy
     
     @property
@@ -72,7 +76,11 @@ class ModelProvider:
         return list(self._models.values())
     
     @property
-    def timeout(self):
+    def limit(self) -> HTTPLimit | None:
+        return self._limit
+    
+    @property
+    def timeout(self) -> int | float | HTTPTimeouts | None:
         return self._timeout
     
     @property
@@ -82,18 +90,6 @@ class ModelProvider:
     @property
     def client(self) -> httpx.AsyncClient:
         return self._client
-    
-    @property
-    def max_connections(self) -> int | None:
-        return self._max_connections
-
-    @property
-    def max_keepalive_connections(self) -> int | None:
-        return self._max_keepalive_connections
-    
-    @property
-    def keepalive_expiry(self) -> int | float | None:
-        return self._keepalive_expiry
     
     @property
     def api_keys(self) -> str | list[str | None] | None:
@@ -168,15 +164,13 @@ class ModelProvider:
         return cls(
             base_url = config.url,
             proxy = config.proxy,
-            max_connections = config.max_connections,
-            max_keepalive_connections = config.max_keepalive_connections,
-            keepalive_expiry = config.keepalive_expiry,
+            limit = config.limit,
+            timeout = config.timeout,
 
             name = config.name,
             id = config.id,
             api_key_env = config.api_key_env,
             models = config.models,
-            timeout = config.timeout,
             client = client
         )
     
@@ -184,15 +178,13 @@ class ModelProvider:
         return ProviderConfig(
             url = self.base_url,
             proxy = self.proxy,
-            max_connections = self.max_connections,
-            max_keepalive_connections = self.max_keepalive_connections,
-            keepalive_expiry = self.keepalive_expiry,
+            limit = self.limit,
+            timeout = self.timeout,
 
             name = self.name,
             id = self.id,
             api_key_env = self.api_key_env,
             models = self.models,
-            timeout = self.timeout,
         )
     
     async def close(self):
