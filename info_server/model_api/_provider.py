@@ -22,7 +22,10 @@ class ModelProvider:
         proxy: str | None = None,
         models: list[ModelAPIData] | None = None,
         timeout: float = 600.0,
-        client: httpx.AsyncClient | None = None
+        client: httpx.AsyncClient | None = None,
+        max_connections: int | None = None,
+        max_keepalive_connections: int | None = None,
+        keepalive_expiry: int | float | None = 5
     ):
         self._id = id
         self._name = name
@@ -31,6 +34,10 @@ class ModelProvider:
         self._timeout = timeout
         self._api_key_env = api_key_env
         self._models: dict[str, ModelAPIData] = {}
+        self._max_connections = max_connections
+        self._max_keepalive_connections = max_keepalive_connections
+        self._keepalive_expiry = keepalive_expiry
+
         if models is not None:
             self._models = {model.id: model for model in models}
         self._client = client or httpx.AsyncClient(
@@ -75,6 +82,18 @@ class ModelProvider:
     @property
     def client(self) -> httpx.AsyncClient:
         return self._client
+    
+    @property
+    def max_connections(self) -> int | None:
+        return self._max_connections
+
+    @property
+    def max_keepalive_connections(self) -> int | None:
+        return self._max_keepalive_connections
+    
+    @property
+    def keepalive_expiry(self) -> int | float | None:
+        return self._keepalive_expiry
     
     @property
     def api_keys(self) -> str | list[str | None] | None:
@@ -147,11 +166,15 @@ class ModelProvider:
     @classmethod
     def from_config(cls, config: ProviderConfig, client: httpx.AsyncClient | None = None) -> "ModelProvider":
         return cls(
+            base_url = config.url,
+            proxy = config.proxy,
+            max_connections = config.max_connections,
+            max_keepalive_connections = config.max_keepalive_connections,
+            keepalive_expiry = config.keepalive_expiry,
+
             name = config.name,
             id = config.id,
-            base_url = config.url,
             api_key_env = config.api_key_env,
-            proxy = config.proxy,
             models = config.models,
             timeout = config.timeout,
             client = client
@@ -159,11 +182,15 @@ class ModelProvider:
     
     def to_config(self) -> ProviderConfig:
         return ProviderConfig(
+            url = self.base_url,
+            proxy = self.proxy,
+            max_connections = self.max_connections,
+            max_keepalive_connections = self.max_keepalive_connections,
+            keepalive_expiry = self.keepalive_expiry,
+
             name = self.name,
             id = self.id,
-            url = self.base_url,
             api_key_env = self.api_key_env,
-            proxy = self.proxy,
             models = self.models,
             timeout = self.timeout,
         )
