@@ -1,4 +1,4 @@
-import re
+import ssl
 import httpx
 import random
 
@@ -11,6 +11,7 @@ from loguru import logger
 
 class ModelProvider:
     _env = Env()
+    _ssl_context = ssl.create_default_context()
 
     def __init__(
         self,
@@ -35,7 +36,8 @@ class ModelProvider:
         self._client = client or httpx.AsyncClient(
             base_url = base_url,
             proxy = proxy,
-            timeout = timeout
+            timeout = timeout,
+            verify = self._ssl_context
         )
     
     @property
