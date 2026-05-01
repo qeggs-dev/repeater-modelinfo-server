@@ -17,6 +17,7 @@
     "max_connections": 100, // 最大连接数
     "max_keepalive_connections": 20, // 最大保持连接数
     "keepalive_expiry": 5, // 保持连接的过期时间，单位为秒
+  },
   "timeout": { // 超时时间，单位为秒，这里也可以填写一个数字，表示总超时
     "connect": 10, // 连接超时
     "read": 30, // 读取超时
