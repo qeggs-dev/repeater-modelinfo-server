@@ -1,4 +1,4 @@
-# 从此处开始详细了解 ModelAPI Info Server
+# 从此处开始详细了解 Model Info Server
 
 ## APIs
 

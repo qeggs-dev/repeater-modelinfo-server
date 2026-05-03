@@ -1,6 +1,6 @@
 <div align="center">
 
-# ModelAPI Info Server
+# Model Info Server
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg?logo=python)](https://www.python.org/downloads/) [![License: MIT](https://img.shields.io/badge/License-MIT-63b9ff.svg)](https://opensource.org/licenses/MIT)
 
