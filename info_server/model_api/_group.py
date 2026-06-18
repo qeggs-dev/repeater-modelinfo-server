@@ -103,9 +103,8 @@ class ProviderGroup:
             matched_model = self.match_uid(group_name, model_name)
             if matched_model:
                 logger.info(
-                    "Regex matched {models_count} models",
-                    model_id = model_id,
-                    models_count = len(matched_model)
+                    "{model_id} Founded",
+                    model_id = model_id
                 )
                 return matched_model
         
