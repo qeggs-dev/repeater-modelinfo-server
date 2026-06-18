@@ -103,7 +103,7 @@ class ProviderGroup:
             matched_model = self.match_uid(group_name, model_name)
             if matched_model:
                 logger.info(
-                    "{model_id} Founded",
+                    "Matched model uid: {model_id}",
                     model_id = model_id
                 )
                 return matched_model
