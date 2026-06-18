@@ -65,13 +65,25 @@ class ProviderGroup:
     
     def find_models(self, model_id: str) -> list[Model]:
         if model_id in self._providers:
+            logger.info(
+                "Found provider for model_id: {provider}",
+                provider = model_id
+            )
             provider = self._providers[model_id]
             matched_models = provider.get_all_models()
             if matched_models:
+                logger.warning(
+                    "Found 0 matched models for model_id: {provider}",
+                    provider = model_id
+                )
                 return matched_models
         
         all_this_models = self.all_this_models(model_id)
         if all_this_models:
+            logger.info(
+                "Found provider for model_id: {provider}",
+                provider = model_id
+            )
             return all_this_models
         
         match_result = self._model_uid_pattern.match(model_id)
@@ -83,6 +95,10 @@ class ProviderGroup:
             assert isinstance(model_name, str), f"Model name should be a string, but got {type(model_name).__name__}"
             matched_model = self.match_uid(group_name, model_name)
             if matched_model:
+                logger.info(
+                    "Matched model uid: {model_id}",
+                    provider = model_id
+                )
                 return matched_model
         
         match_result = self._rematch_pattern.match(model_id)
@@ -94,6 +110,11 @@ class ProviderGroup:
             assert isinstance(regex, str), f"Regex should be a string, but got {type(regex).__name__}"
             matched_model = self.rematch_models(mode, regex)
             if matched_model:
+                logger.info(
+                    "Regex [{mode}] matched models: {models_count}",
+                    mode = mode,
+                    models_count = len(matched_model)
+                )
                 return matched_model
     
         match_result = self._schema_pattern.match(model_id)
@@ -105,6 +126,10 @@ class ProviderGroup:
                 )
             )
             if model:
+                logger.info(
+                    "Schema matched models: {models_count}",
+                    models_count = len(model)
+                )
                 return model
         
         match_result = self._fuzz_pattern.match(model_id)
@@ -120,7 +145,15 @@ class ProviderGroup:
             model_uid = model_id
             match_limit = self._default_fuzzy_match_limit
         
-        return self.fuzzy_match_models(model_uid, match_limit)
+        fuzzy_match_result = self.fuzzy_match_models(model_uid, match_limit)
+        if fuzzy_match_result:
+            logger.info(
+                "Fuzzy matched models: {models_count}",
+                models_count = len(fuzzy_match_result)
+            )
+            return fuzzy_match_result
+
+        return []
     
     def get_model(self, provider_id: str, model_id: str) -> Model | None:
         provider = self._providers.get(provider_id)
