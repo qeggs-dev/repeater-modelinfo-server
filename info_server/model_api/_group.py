@@ -64,21 +64,32 @@ class ProviderGroup:
         return uids
     
     def find_models(self, model_id: str) -> list[Model]:
+        if model_id.lower() == "all":
+            matched_models = self.get_all_models()
+            if matched_models:
+                logger.info(
+                    "Matched all models, total: {total}",
+                    total = len(matched_models)
+                )
+                return matched_models
+        
         if model_id in self._providers:
-            logger.info(
-                "Found provider for model_id: {provider}",
-                provider = model_id
-            )
             provider = self._providers[model_id]
             matched_models = provider.get_all_models()
             if matched_models:
+                logger.info(
+                    "From Provider {provider}, matched {models_count} models",
+                    provider = model_id,
+                    models_count = len(matched_models)
+                )
                 return matched_models
         
         all_this_models = self.all_this_models(model_id)
         if all_this_models:
             logger.info(
-                "Found provider for model_id: {provider}",
-                provider = model_id
+                "Found {models_count} model {model_id} in all providers",
+                model_id = model_id,
+                models_count = len(all_this_models)
             )
             return all_this_models
         
@@ -92,8 +103,9 @@ class ProviderGroup:
             matched_model = self.match_uid(group_name, model_name)
             if matched_model:
                 logger.info(
-                    "Matched model uid: {model_id}",
-                    provider = model_id
+                    "Regex matched {models_count} models",
+                    model_id = model_id,
+                    models_count = len(matched_model)
                 )
                 return matched_model
         
