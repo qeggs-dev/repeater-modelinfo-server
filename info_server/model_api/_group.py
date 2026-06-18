@@ -72,10 +72,6 @@ class ProviderGroup:
             provider = self._providers[model_id]
             matched_models = provider.get_all_models()
             if matched_models:
-                logger.warning(
-                    "Found 0 matched models for model_id: {provider}",
-                    provider = model_id
-                )
                 return matched_models
         
         all_this_models = self.all_this_models(model_id)
