@@ -63,10 +63,12 @@ class Server:
     
     @classmethod
     def init_core(cls):
+        configs = ConfigManager.get_configs()
         cls.core = ProviderGroup.from_file(
-            ConfigManager.get_configs().model_api.api_file_path,
-            allow_schema_match = ConfigManager.get_configs().model_api.allow_schema_match,
-            default_fuzzy_match_limit = ConfigManager.get_configs().model_api.default_fuzzy_match_limit,
+            configs.model_api.api_file_path,
+            refresh_interval = configs.model_api.refresh_interval,
+            allow_schema_match = configs.model_api.allow_schema_match,
+            default_fuzzy_match_limit = configs.model_api.default_fuzzy_match_limit,
         )
     
     @classmethod
