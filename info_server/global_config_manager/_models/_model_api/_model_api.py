@@ -7,3 +7,4 @@ class ModelAPIConfig(BaseModel):
     default_timeout: float = 600.0
     allow_schema_match: bool = False
     default_fuzzy_match_limit: int | None = 32
+    refresh_interval: int | float = 21600.0
