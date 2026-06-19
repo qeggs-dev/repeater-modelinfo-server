@@ -27,15 +27,56 @@ class ProviderGroup:
     def __init__(
             self,
             groups: GroupConfig,
+            refresh_interval : int | float = 21600,
             allow_schema_match: bool = False,
             default_fuzzy_match_limit: int = 32,
         ):
         self._providers: dict[str, ModelProvider] = {provider.id: ModelProvider.from_config(provider) for provider in groups.providers}
         self._groups: GroupConfig = groups
+        self._refresh_interval: int | float = refresh_interval
         self._allow_schema_match: bool = allow_schema_match
         self._default_fuzzy_match_limit: int = default_fuzzy_match_limit
         StartHandler.add_function(self.init_library_file(groups.library_file))
+        StartHandler.add_function(self.automatic_refresh())
         ExitHandler.add_function(self.close_and_save())
+    
+    @classmethod
+    def from_file(
+        cls,
+        path: str | os.PathLike,
+        refresh_interval: int = 21600,
+        allow_schema_match: bool = False,
+        default_fuzzy_match_limit: int = 32,
+    ) -> "ProviderGroup":
+        with open(path, "rb") as f:
+            file_content = f.read()
+        data = orjson.loads(file_content)
+        config = GroupConfig(**data)
+        return cls(
+            config,
+            refresh_interval = refresh_interval,
+            allow_schema_match = allow_schema_match,
+            default_fuzzy_match_limit = default_fuzzy_match_limit,
+        )
+    
+    @classmethod
+    async def from_file_async(
+        cls,
+        path: str | os.PathLike,
+        refresh_interval: int = 21600,
+        allow_schema_match: bool = False,
+        default_fuzzy_match_limit: int = 32,
+     ) -> "ProviderGroup":
+        async with aiofiles.open(path, "rb") as f:
+            file_content = await f.read()
+        data = orjson.loads(file_content)
+        config = GroupConfig(**data)
+        return cls(
+            config,
+            refresh_interval = refresh_interval,
+            allow_schema_match = allow_schema_match,
+            default_fuzzy_match_limit = default_fuzzy_match_limit,
+        )
     
     @property
     def groups(self) -> GroupConfig:
@@ -268,39 +309,13 @@ class ProviderGroup:
             models.extend(group.get_all_models())
         return models
     
-    @classmethod
-    def from_file(
-        cls,
-        path: str | os.PathLike,
-        allow_schema_match: bool = False,
-        default_fuzzy_match_limit: int = 32,
-    ) -> "ProviderGroup":
-        with open(path, "rb") as f:
-            file_content = f.read()
-            data = orjson.loads(file_content)
-            config = GroupConfig(**data)
-            return cls(
-                config,
-                allow_schema_match = allow_schema_match,
-                default_fuzzy_match_limit = default_fuzzy_match_limit,
-            )
-    
-    @classmethod
-    async def from_file_async(
-        cls,
-        path: str | os.PathLike,
-        allow_schema_match: bool = False,
-        default_fuzzy_match_limit: int = 32,
-     ) -> "ProviderGroup":
-        async with aiofiles.open(path, "rb") as f:
-            file_content = await f.read()
-        data = orjson.loads(file_content)
-        config = GroupConfig(**data)
-        return cls(
-            config,
-            allow_schema_match = allow_schema_match,
-            default_fuzzy_match_limit = default_fuzzy_match_limit,
-        )
+    async def _automatic_refresh(self):
+        while True:
+            await asyncio.sleep(self._refresh_interval)
+            await self.get_and_populates()
+
+    async def automatic_refresh(self):
+        task = asyncio.create_task(self._automatic_refresh())
     
     async def _get_and_populates(self, provider: ModelProvider):
         try:
