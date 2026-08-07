@@ -29,13 +29,13 @@ class ProviderGroup:
             groups: GroupConfig,
             refresh_interval : int | float = 21600,
             allow_schema_match: bool = False,
-            default_fuzzy_match_limit: int = 32,
+            default_fuzzy_match_limit: int | None = 32,
         ):
         self._providers: dict[str, ModelProvider] = {provider.id: ModelProvider.from_config(provider) for provider in groups.providers}
         self._groups: GroupConfig = groups
         self._refresh_interval: int | float = refresh_interval
         self._allow_schema_match: bool = allow_schema_match
-        self._default_fuzzy_match_limit: int = default_fuzzy_match_limit
+        self._default_fuzzy_match_limit: int | None = default_fuzzy_match_limit
         StartHandler.add_function(self.init_library_file(groups.library_file))
         StartHandler.add_function(self.automatic_refresh())
         ExitHandler.add_function(self.close_and_save())
@@ -44,9 +44,9 @@ class ProviderGroup:
     def from_file(
         cls,
         path: str | os.PathLike,
-        refresh_interval: int = 21600,
+        refresh_interval: int | float = 21600,
         allow_schema_match: bool = False,
-        default_fuzzy_match_limit: int = 32,
+        default_fuzzy_match_limit: int | None = 32,
     ) -> "ProviderGroup":
         with open(path, "rb") as f:
             file_content = f.read()
@@ -63,9 +63,9 @@ class ProviderGroup:
     async def from_file_async(
         cls,
         path: str | os.PathLike,
-        refresh_interval: int = 21600,
+        refresh_interval: int | float = 21600,
         allow_schema_match: bool = False,
-        default_fuzzy_match_limit: int = 32,
+        default_fuzzy_match_limit: int | None = 32,
      ) -> "ProviderGroup":
         async with aiofiles.open(path, "rb") as f:
             file_content = await f.read()
@@ -222,11 +222,12 @@ class ProviderGroup:
         return [model]
 
     def all_this_models(self, model_id: str) -> list[Model]:
-        list_of_models = []
+        list_of_models: list[Model] = []
         for provider in self._providers.values():
             model = provider.find_model(model_id)
             if model is not None:
-                return list_of_models.append(model)
+                list_of_models.append(model)
+                return list_of_models
         return list_of_models
     
     def rematch_models(self, mode: str, regex: str) -> list[Model]:
