@@ -77,10 +77,10 @@ class Server:
         server = uvicorn.Server(
             config = uvicorn.Config(
                 app = cls.app,
-                host = config.server.host,
-                port = config.server.port,
+                host = config.server.host or "0.0.0.0",
+                port = config.server.port or 8000,
                 workers = config.server.workers,
-                reload = config.server.reload,
+                reload = config.server.reload or False,
                 log_config = None
             )
         )
