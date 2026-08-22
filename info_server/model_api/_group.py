@@ -114,6 +114,21 @@ class ProviderGroup:
                 )
                 return matched_models
         
+        match_result = self._model_uid_pattern.match(model_id)
+        if match_result:
+            group_name = match_result.group("group")
+            model_name = match_result.group("model")
+
+            assert isinstance(group_name, str), f"Group name should be a string, but got {type(group_name).__name__}"
+            assert isinstance(model_name, str), f"Model name should be a string, but got {type(model_name).__name__}"
+            matched_model = self.match_uid(group_name, model_name)
+            if matched_model:
+                logger.info(
+                    "Matched model uid: {model_id}",
+                    model_id = model_id
+                )
+                return matched_model
+        
         if model_id in self._providers:
             provider = self._providers[model_id]
             matched_models = provider.get_all_models()
@@ -133,21 +148,6 @@ class ProviderGroup:
                 models_count = len(all_this_models)
             )
             return all_this_models
-        
-        match_result = self._model_uid_pattern.match(model_id)
-        if match_result:
-            group_name = match_result.group("group")
-            model_name = match_result.group("model")
-
-            assert isinstance(group_name, str), f"Group name should be a string, but got {type(group_name).__name__}"
-            assert isinstance(model_name, str), f"Model name should be a string, but got {type(model_name).__name__}"
-            matched_model = self.match_uid(group_name, model_name)
-            if matched_model:
-                logger.info(
-                    "Matched model uid: {model_id}",
-                    model_id = model_id
-                )
-                return matched_model
         
         match_result = self._rematch_pattern.match(model_id)
         if match_result:
