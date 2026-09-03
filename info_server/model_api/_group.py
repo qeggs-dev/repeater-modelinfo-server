@@ -227,7 +227,6 @@ class ProviderGroup:
             model = provider.find_model(model_id)
             if model is not None:
                 list_of_models.append(model)
-                return list_of_models
         return list_of_models
     
     def rematch_models(self, mode: str, regex: str) -> list[Model]:
